@@ -14,6 +14,10 @@ struct Args {
     /// Pushover token
     #[clap(short, long)]
     token: String,
+
+    /// Message to send
+    #[clap(short, long)]
+    message: String,
 }
 
 static PUSHOVER_API_ENDPOINT: &str = "https://api.pushover.net/1/messages.json";
@@ -31,7 +35,7 @@ fn main() {
     let payload = Payload {
         token: args.token,
         user: args.user,
-        message: "hello, world".to_string(),
+        message: args.message,
     };
 
     let response = Client::new()
