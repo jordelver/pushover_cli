@@ -29,8 +29,8 @@ fn main() {
     let args = Args::parse();
 
     let payload = Payload {
-        token: args.token.to_string(),
-        user: args.user.to_string(),
+        token: args.token,
+        user: args.user,
         message: "hello, world".to_string(),
     };
 
