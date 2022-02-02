@@ -1,6 +1,7 @@
 use clap::Parser;
 use reqwest::blocking::Client;
 use reqwest::StatusCode;
+use serde::Serialize;
 
 /// Send notifications using Pushover
 #[derive(Parser, Debug)]
@@ -17,14 +18,21 @@ struct Args {
 
 static PUSHOVER_API_ENDPOINT: &str = "https://api.pushover.net/1/messages.json";
 
+#[derive(Debug, Serialize)]
+struct Payload {
+    token: String,
+    user: String,
+    message: String,
+}
+
 fn main() {
     let args = Args::parse();
 
-    let payload = vec![
-        ("token", args.token.to_string()),
-        ("user", args.user.to_string()),
-        ("message", "hello, world".to_string()),
-    ];
+    let payload = Payload {
+        token: args.token.to_string(),
+        user: args.user.to_string(),
+        message: "hello, world".to_string(),
+    };
 
     let response = Client::new()
         .post(PUSHOVER_API_ENDPOINT)
