@@ -1,5 +1,4 @@
 use reqwest::blocking::Client;
-use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::cli::Args;
@@ -13,21 +12,20 @@ struct Payload {
     message: String,
 }
 
-pub fn send_notification(args: Args) {
+pub type PushoverResult = Result<(), Box<dyn std::error::Error>>;
+
+pub fn send_notification(args: Args) -> PushoverResult {
     let payload = Payload {
         token: args.token,
         user: args.user,
         message: args.message,
     };
 
-    let response = Client::new()
+    Client::new()
         .post(PUSHOVER_API_ENDPOINT)
         .form(&payload)
-        .send()
-        .unwrap();
+        .send()?
+        .error_for_status()?;
 
-    match response.status() {
-        StatusCode::OK => println!("Notification sent"),
-        _ => println!("Failed to send notification"),
-    }
+    Ok(())
 }
