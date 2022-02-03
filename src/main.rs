@@ -1,8 +1,8 @@
 use clap::Parser;
-use pushover_cli::Args;
+use pushover_cli::cli;
 
 fn main() {
-    let args = Args::parse();
+    let args = cli::Args::parse();
 
-    pushover_cli::send_notification(args)
+    pushover_cli::run(args)
 }
