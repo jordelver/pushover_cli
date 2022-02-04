@@ -1,8 +1,11 @@
+pub mod error;
+
 use reqwest::blocking::Client;
 use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::cli::Args;
+use error::PushoverError;
 
 static PUSHOVER_API_ENDPOINT: &str = "https://api.pushover.net/1/messages.json";
 
@@ -23,18 +26,17 @@ impl Payload {
     }
 }
 
-pub type PushoverResult = Result<(), Box<dyn std::error::Error>>;
-
-pub fn send_notification(args: Args) -> PushoverResult {
+pub fn send_notification(args: Args) -> Result<(), PushoverError> {
     let payload = Payload::new(args);
 
     let response = Client::new()
         .post(PUSHOVER_API_ENDPOINT)
         .form(&payload)
-        .send()?;
+        .send()
+        .map_err(|_| PushoverError::HttpError)?;
 
     match response.status() {
         StatusCode::OK => Ok(()),
-        _ => Err(response.status().as_str().into()),
+        _ => Err(PushoverError::ApiError),
     }
 }
