@@ -16,3 +16,9 @@ impl fmt::Display for PushoverError {
         }
     }
 }
+
+impl From<reqwest::Error> for PushoverError {
+    fn from(_: reqwest::Error) -> Self {
+        PushoverError::HttpError
+    }
+}

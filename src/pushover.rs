@@ -32,8 +32,7 @@ pub fn send_notification(args: Args) -> Result<(), PushoverError> {
     let response = Client::new()
         .post(PUSHOVER_API_ENDPOINT)
         .form(&payload)
-        .send()
-        .map_err(|_| PushoverError::HttpError)?;
+        .send()?;
 
     match response.status() {
         StatusCode::OK => Ok(()),
