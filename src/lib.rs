@@ -9,8 +9,8 @@ pub fn run(args: cli::Args) {
             println!("Notification sent")
         }
         Err(err) => match err {
-            PushoverError::ApiError => println!("API Error: {}", err),
-            PushoverError::HttpError => println!("HTTP Error: {}", err),
+            PushoverError::ApiError => eprintln!("API Error: {}", err),
+            PushoverError::HttpError => eprintln!("HTTP Error: {}", err),
         },
     }
 }
