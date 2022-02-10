@@ -12,3 +12,5 @@ serde = { version = "1.0.136", features = ["derive"] }
 
 [dev-dependencies]
 assert_cmd = "2.0.4"
+wiremock = "0.5"
+async-std = {version = "1.10.0", features = ["attributes", "tokio1"]}
