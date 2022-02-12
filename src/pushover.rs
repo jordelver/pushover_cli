@@ -33,6 +33,48 @@ mod tests {
 
     use super::*;
 
+    #[async_std::test]
+    async fn missing_message() {
+        let mock_server = stub_network(400, stubs::missing_message());
+
+        let result = send_request(&mock_server.await.uri(), payload());
+
+        assert!(
+            matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["message cannot be blank"])
+        );
+    }
+
+    #[async_std::test]
+    async fn invalid_user() {
+        let mock_server = stub_network(400, stubs::invalid_user());
+
+        let result = send_request(&mock_server.await.uri(), payload());
+
+        assert!(
+            matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["user identifier is not a valid user, group, or subscribed user key"])
+        );
+    }
+
+    #[async_std::test]
+    async fn invalid_token() {
+        let mock_server = stub_network(400, stubs::invalid_token());
+
+        let result = send_request(&mock_server.await.uri(), payload());
+
+        assert!(
+            matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["application token is invalid"])
+        );
+    }
+
+    #[async_std::test]
+    async fn five_hundred_error() {
+        let mock_server = stub_network(500, Vec::new());
+
+        let result = send_request(&mock_server.await.uri(), payload());
+
+        assert!(matches!(result, Err(PushoverError::HttpError(_))));
+    }
+
     mod stubs {
         pub fn missing_message() -> Vec<u8> {
             r#"{
@@ -91,47 +133,5 @@ mod tests {
             .await;
 
         mock_server
-    }
-
-    #[async_std::test]
-    async fn missing_message() {
-        let mock_server = stub_network(400, stubs::missing_message());
-
-        let result = send_request(&mock_server.await.uri(), payload());
-
-        assert!(
-            matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["message cannot be blank"])
-        );
-    }
-
-    #[async_std::test]
-    async fn invalid_user() {
-        let mock_server = stub_network(400, stubs::invalid_user());
-
-        let result = send_request(&mock_server.await.uri(), payload());
-
-        assert!(
-            matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["user identifier is not a valid user, group, or subscribed user key"])
-        );
-    }
-
-    #[async_std::test]
-    async fn invalid_token() {
-        let mock_server = stub_network(400, stubs::invalid_token());
-
-        let result = send_request(&mock_server.await.uri(), payload());
-
-        assert!(
-            matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["application token is invalid"])
-        );
-    }
-
-    #[async_std::test]
-    async fn five_hundred_error() {
-        let mock_server = stub_network(500, Vec::new());
-
-        let result = send_request(&mock_server.await.uri(), payload());
-
-        assert!(matches!(result, Err(PushoverError::HttpError(_))));
     }
 }
