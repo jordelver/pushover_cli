@@ -82,19 +82,22 @@ mod tests {
         }
     }
 
-    #[async_std::test]
-    async fn missing_message() {
+    async fn stub_network(status: u16, body: Vec<u8>) -> MockServer {
         let mock_server = MockServer::start().await;
 
         Mock::given(method("POST"))
-            .respond_with(
-                ResponseTemplate::new(400)
-                    .set_body_raw(stubs::missing_message(), "application/json"),
-            )
+            .respond_with(ResponseTemplate::new(status).set_body_raw(body, "application/json"))
             .mount(&mock_server)
             .await;
 
-        let result = send_request(&mock_server.uri(), payload());
+        mock_server
+    }
+
+    #[async_std::test]
+    async fn missing_message() {
+        let mock_server = stub_network(400, stubs::missing_message());
+
+        let result = send_request(&mock_server.await.uri(), payload());
 
         assert!(
             matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["message cannot be blank"])
@@ -103,16 +106,9 @@ mod tests {
 
     #[async_std::test]
     async fn invalid_user() {
-        let mock_server = MockServer::start().await;
+        let mock_server = stub_network(400, stubs::invalid_user());
 
-        Mock::given(method("POST"))
-            .respond_with(
-                ResponseTemplate::new(400).set_body_raw(stubs::invalid_user(), "application/json"),
-            )
-            .mount(&mock_server)
-            .await;
-
-        let result = send_request(&mock_server.uri(), payload());
+        let result = send_request(&mock_server.await.uri(), payload());
 
         assert!(
             matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["user identifier is not a valid user, group, or subscribed user key"])
@@ -121,16 +117,9 @@ mod tests {
 
     #[async_std::test]
     async fn invalid_token() {
-        let mock_server = MockServer::start().await;
+        let mock_server = stub_network(400, stubs::invalid_token());
 
-        Mock::given(method("POST"))
-            .respond_with(
-                ResponseTemplate::new(400).set_body_raw(stubs::invalid_token(), "application/json"),
-            )
-            .mount(&mock_server)
-            .await;
-
-        let result = send_request(&mock_server.uri(), payload());
+        let result = send_request(&mock_server.await.uri(), payload());
 
         assert!(
             matches!(result, Err(PushoverError::ApiError(t)) if t.errors == vec!["application token is invalid"])
@@ -139,14 +128,9 @@ mod tests {
 
     #[async_std::test]
     async fn five_hundred_error() {
-        let mock_server = MockServer::start().await;
+        let mock_server = stub_network(500, Vec::new());
 
-        Mock::given(method("POST"))
-            .respond_with(ResponseTemplate::new(500))
-            .mount(&mock_server)
-            .await;
-
-        let result = send_request(&mock_server.uri(), payload());
+        let result = send_request(&mock_server.await.uri(), payload());
 
         assert!(matches!(result, Err(PushoverError::HttpError(_))));
     }
