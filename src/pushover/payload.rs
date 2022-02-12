@@ -4,9 +4,9 @@ use crate::cli::Args;
 
 #[derive(Debug, Serialize)]
 pub struct Payload {
-    token: String,
-    user: String,
-    message: String,
+    pub token: String,
+    pub user: String,
+    pub message: String,
 }
 
 impl Payload {

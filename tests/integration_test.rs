@@ -1,7 +1,7 @@
 use assert_cmd::Command;
 
 #[test]
-fn test_help_flag() {
+fn help_flag() {
     let mut cmd = Command::cargo_bin("pushover_cli").unwrap();
     let output = r#"pushover_cli 0.1.0
 Send notifications using Pushover
@@ -25,7 +25,7 @@ OPTIONS:
 }
 
 #[test]
-fn test_version_flag() {
+fn version_flag() {
     let mut cmd = Command::cargo_bin("pushover_cli").unwrap();
     let output = "pushover_cli 0.1.0\n";
 

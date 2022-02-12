@@ -10,7 +10,7 @@ pub fn run(args: cli::Args) {
         }
         Err(err) => match err {
             PushoverError::ApiError(body) => eprintln!("API Error\n{:#?}", body),
-            PushoverError::HttpError => eprintln!("HTTP Error"),
+            PushoverError::HttpError(original) => eprintln!("HTTP Error\n{:?}", original),
         },
     }
 }
